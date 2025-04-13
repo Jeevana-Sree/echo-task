@@ -50,7 +50,8 @@ def get_db_connection():
 
 # Reminder function
 def speak_reminder(task_message):
-    logging.info(f"\U0001F514 Reminder: {task_message}")
+    print("🚀 speak_reminder() called!")
+    print(f"🔔 Reminder: {task_message}")
     if USE_TTS:
         engine.say(f"Reminder! {task_message}")
         engine.runAndWait()
