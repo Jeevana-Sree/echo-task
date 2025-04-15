@@ -4,6 +4,7 @@ import pyttsx3
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 from threading import Lock
+from flask import render_template
 import os
 import logging
 from nlp import extract_task_and_time
@@ -55,6 +56,10 @@ def speak_reminder(task_message):
     if USE_TTS:
         engine.say(f"Reminder! {task_message}")
         engine.runAndWait()
+
+@app.route('/web')
+def web_ui():
+    return render_template("index.html")
 
 @app.route('/')
 def home():
