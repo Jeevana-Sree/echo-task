@@ -2,107 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Echo Task - Voice Reminder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Echo Task</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 3rem;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin-top: 1rem;
-      cursor: pointer;
-    }
-    #output {
-      margin-top: 2rem;
-      white-space: pre-line;
-      font-size: 16px;
-      color: #333;
-    }
+    body { font-family: Arial; padding: 20px; max-width: 500px; margin: auto; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; }
+    .mic-btn { background-color: #00bcd4; color: white; border: none; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🎙️ Echo Task</h1>
-  <p>Say something like: <em>“Remind me to complete my submission in 5 minutes”</em></p>
+  <h2>🗣️ Echo Task – Voice-Based Reminder</h2>
 
-  <button onclick="startListening()">🎤 Speak Now</button>
-  <div id="output"></div>
+  <input type="text" id="name" placeholder="Your Name"/>
+  <input type="email" id="email" placeholder="Your Email"/>
+  <textarea id="message" placeholder="Task Message"></textarea>
+  <input type="time" id="reminder_time"/>
 
-  <script>
-    const output = document.getElementById('output');
+  <button onclick="submitTask()">Add Task</button>
+  <button class="mic-btn" onclick="startListening()">🎤 Speak Task</button>
 
-    function speak(text) {
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'en-US';
-      const voices = speechSynthesis.getVoices();
-      const preferred = voices.find(v => v.name.includes("Google") || v.lang === "en-US");
-      if (preferred) msg.voice = preferred;
-      window.speechSynthesis.speak(msg);
-    }
-
-    function convertTime(text) {
-      const atMatch = text.match(/at (\d{1,2}) ?([ap]m)/i);
-      if (atMatch) {
-        let [_, hour, ampm] = atMatch;
-        hour = parseInt(hour);
-        if (ampm.toLowerCase() === 'pm' && hour !== 12) hour += 12;
-        if (ampm.toLowerCase() === 'am' && hour === 12) hour = 0;
-        return `${hour.toString().padStart(2, '0')}:00`;
-      }
-
-      const inMatch = text.match(/in (\d+) minutes?/i);
-      if (inMatch) {
-        const mins = parseInt(inMatch[1]);
-        const date = new Date();
-        date.setMinutes(date.getMinutes() + mins);
-        return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-      }
-
-      return "12:00"; // fallback
-    }
-
-    function startListening() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'en-US';
-      recognition.start();
-
-      recognition.onresult = function (event) {
-        const text = event.results[0][0].transcript;
-        output.innerText = `You said: "${text}"`;
-
-        const task = text.split(/at|in/i)[0].replace(/remind me to/i, '').trim();
-        const time = convertTime(text);
-
-        fetch('/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: "Jeevana",
-            email: "jeevana@example.com",
-            message: task,
-            reminder_time: time
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          output.innerText += `\n${data.message}`;
-          speak(`Okay Jeevana, I will remind you to ${task} at ${time}.`);
-        })
-        .catch(err => {
-          console.error(err);
-          speak("Sorry, I couldn't set the reminder.");
-        });
-      };
-    }
-
-    // Preload voices (important for Chrome)
-    window.speechSynthesis.onvoiceschanged = () => {
-      speechSynthesis.getVoices();
-    };
-  </script>
+  <p id="output"></p>
 </body>
 </html>
