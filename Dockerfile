@@ -1,23 +1,18 @@
-# Use a slim Python image
-FROM python:3.10-slim
+# Use official Python image
+FROM python:3.9-slim
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy dependency file first and install dependencies
+# Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all application files
-COPY ./app ./app
-COPY ./tests ./tests
-COPY .env .
+# Copy the rest of the application
+COPY . .
 
-# Set the Python path so tests can import app modules
-ENV PYTHONPATH=/app
-
-# Expose the Flask port
+# Expose port
 EXPOSE 5050
 
-# Set the entry point
+# Run the Flask app
 CMD ["python", "app/main.py"]
