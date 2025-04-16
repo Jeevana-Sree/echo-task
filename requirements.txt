@@ -2,9 +2,6 @@
 Flask
 psycopg2-binary
 APScheduler
-pyttsx3
-dateparser
-pytest
 
 
 
