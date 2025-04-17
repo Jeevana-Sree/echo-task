@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git 'https://github.com/Jeevana-Sree/echo-task.git'
+        git branch: 'main', url: 'https://github.com/Jeevana-Sree/echo-task.git'
       }
     }
 
