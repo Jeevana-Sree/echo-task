@@ -1,0 +1,38 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment & Secrets
+.env
+*.env
+.env.*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Virtual environments (if any)
+venv/
+env/
+
+# Docker-related
+*.pid
+docker-compose.override.yml
+
+# VSCode/IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Python egg info
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jenkins workspace files
+workspace/
