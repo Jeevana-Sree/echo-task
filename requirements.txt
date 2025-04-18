@@ -1,0 +1,7 @@
+# requirements.txt
+Flask
+psycopg2-binary
+APScheduler
+
+
+
