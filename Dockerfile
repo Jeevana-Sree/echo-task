@@ -8,8 +8,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
+# Copy source code and folders explicitly
+COPY app/ app/
+COPY templates/ templates/
+COPY static/ static/
 
 # Expose port
 EXPOSE 5050

@@ -5,7 +5,7 @@ from datetime import datetime
 from threading import Lock
 import os
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # Global scheduler
 scheduler = BackgroundScheduler()
