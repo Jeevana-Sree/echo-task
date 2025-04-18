@@ -5,7 +5,7 @@ from datetime import datetime
 from threading import Lock
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 # Global scheduler
 scheduler = BackgroundScheduler()
@@ -17,8 +17,8 @@ def get_db_connection():
     return psycopg2.connect(
         host='db',
         database='echodb',
-        user='postgres',
-        password='Pandu@2k3'
+        user=os.getenv('POSTGRES_USER'),
+        password=os.getenv('POSTGRES_PASSWORD')
     )
 
 @app.route('/')
@@ -47,7 +47,7 @@ def submit():
     cur.close()
     conn.close()
 
-    # Schedule task (server will log it, but frontend will do TTS)
+    # Schedule task
     try:
         remind_at = datetime.strptime(reminder_time, "%H:%M").replace(
             year=datetime.now().year,
