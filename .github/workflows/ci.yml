@@ -33,15 +33,16 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Build Docker images
-        run: docker-compose -f docker-compose.yml build
+      - name: 🔨 Build Docker images
+        run: docker compose -f docker-compose.yml build
 
-      - name: Run containers
-        run: docker-compose -f docker-compose.yml up -d
+      - name: 🚀 Run containers
+        run: docker compose -f docker-compose.yml up -d
 
-      - name: Run basic tests
+      - name: ✅ Run basic tests
         run: |
-          curl --fail http://localhost:5050 || exit 1
+        curl --fail http://localhost:5050 || exit 1
 
-      - name: Shut down
-        run: docker-compose down
+      - name: 🧹 Shut down containers
+        run: docker compose down
+
