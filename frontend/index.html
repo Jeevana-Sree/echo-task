@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Echo Task Reminder</title>
+</head>
+<body style="font-family: sans-serif; padding: 2rem; text-align: center;">
+
+  <h1>🎤 Echo Task</h1>
+  <p>Click the button and say something like:<br><strong>“Remind me to call mom at 6 PM”</strong></p>
+
+  <button onclick="startListening()">🎙️ Speak Task</button>
+
+  <h3>Status</h3>
+  <pre id="status">Awaiting input...</pre>
+
+  <h3>Upcoming Tasks</h3>
+  <ul id="task-list"></ul>
+
+  <!-- JavaScript -->
+  <script>
+    function startListening() {
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.start();
+      document.getElementById("status").innerText = "Listening...";
+
+      recognition.onresult = function(event) {
+        const text = event.results[0][0].transcript;
+        document.getElementById("status").innerText = "You said: " + text;
+
+        fetch('http://localhost:5050/submit-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        })
+        .then(response => response.json())
+        .then(data => {
+          const message = data.message || data.error || "No message returned";
+          document.getElementById("status").innerText += "\n" + message;
+
+          // Speak the result
+          const utterance = new SpeechSynthesisUtterance(message);
+          speechSynthesis.speak(utterance);
+
+          if (typeof loadTasks === "function") {
+            loadTasks();
+          }
+        })
+        .catch(err => {
+          console.error("Error:", err);
+          const utterance = new SpeechSynthesisUtterance("An error occurred while saving the task.");
+          speechSynthesis.speak(utterance);
+        });
+      };
+    }
+
+    function loadTasks() {
+      fetch('http://localhost:5050/tasks')
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("task-list");
+          if (!list) return;
+
+          list.innerHTML = "";
+          data.forEach(([task, time]) => {
+            const li = document.createElement("li");
+            li.textContent = `${task} – ${new Date(time).toLocaleString()}`;
+            list.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load tasks:", err);
+        });
+    }
+
+    // Load existing tasks on page load
+    window.onload = loadTasks;
+  </script>
+
+</body>
+</html>

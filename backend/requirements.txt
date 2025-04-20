@@ -1,0 +1,7 @@
+flask-cors
+Flask
+psycopg2-binary
+apscheduler
+gtts
+spacy
+python-dateutil
