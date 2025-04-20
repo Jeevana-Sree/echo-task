@@ -1,38 +1,47 @@
-name: Echo Task CI
+name: Echo Task CI/CD
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     services:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
           POSTGRES_DB: echodb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: Pandu@2k3
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: 3.9
 
-      - name: Install dependencies
-        run: |
-          pip install -r backend/requirements.txt
+      - name: Build Docker images
+        run: docker-compose -f docker-compose.yml build
 
-      - name: Lint and Test
+      - name: Run containers
+        run: docker-compose -f docker-compose.yml up -d
+
+      - name: Run basic tests
         run: |
-          echo "Add unit tests later"
+          curl --fail http://localhost:5050 || exit 1
+
+      - name: Shut down
+        run: docker-compose down
