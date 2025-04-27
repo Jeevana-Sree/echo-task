@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Clean Existing Containers') {
+            steps {
+                sh 'docker-compose down || true'
+            }
+        }
+        
         stage('Build Docker Containers') {
             steps {
                 sh 'docker-compose build'
