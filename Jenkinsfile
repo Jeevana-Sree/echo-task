@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Build Docker Containers') {
+        stage('Pull Docker Image') {
             steps {
-                sh 'docker-compose build'
+                sh 'docker-compose pull'
             }
         }
 
