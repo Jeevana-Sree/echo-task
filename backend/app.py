@@ -3,20 +3,20 @@ from gtts import gTTS
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import os
-import spacy
+import nltk
 import psycopg2
 from dateutil import parser
 from flask_cors import CORS
-from zoneinfo import ZoneInfo 
+from zoneinfo import ZoneInfo
 
-# Correct app setup
+# Initialize Flask app
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
 scheduler = BackgroundScheduler()
 scheduler.start()
 
-# Load SpaCy model
-nlp = spacy.load("en_core_web_sm")
+# Download nltk punkt tokenizer if needed
+nltk.download('punkt')
 
 # Connect to PostgreSQL
 conn = psycopg2.connect(
@@ -58,38 +58,37 @@ def get_tasks():
     tasks = cur.fetchall()
     return jsonify(tasks)
 
-
+# Endpoint to submit new task
 @app.route('/submit-task', methods=['POST'])
 def submit_task():
     data = request.get_json()
     text = data.get("text", "").strip()
 
-    # Make it case-insensitive
+    # Validate basic format
     if " at " not in text.lower() or "remind me to" not in text.lower():
         return jsonify({"error": "Invalid format. Say: 'Remind me to [task] at [time]'"}), 400
 
     try:
-        # Normalize text to lowercase for parsing but preserve original casing for task
         lower_text = text.lower()
         split_index = lower_text.index(" at ")
         task = text[len("Remind me to "):split_index].strip()
         time_str = text[split_index + 4:].strip()
-        
-        # Parse and localize to IST
+
+        # Parse time and set IST timezone
         time = parser.parse(time_str)
         time = time.replace(tzinfo=ZoneInfo("Asia/Kolkata"))
 
     except Exception as e:
         return jsonify({"error": "Could not parse task or time"}), 400
 
-    # Save to DB
+    # Insert into database
     cur.execute("INSERT INTO tasks (task, time) VALUES (%s, %s)", (task, time))
     conn.commit()
 
+    # Schedule voice reminder
     schedule_reminder(task, time)
     return jsonify({"message": "Task saved and reminder set"}), 200
 
-
-# Run the Flask app
+# Run Flask app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
